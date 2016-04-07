@@ -33,10 +33,10 @@ import org.apache.camel.language.simple.SimpleLanguage;
 import org.apache.camel.util.CollectionStringBuffer;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.StringQuoteHelper;
+import org.apache.camel.util.ValueHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
-import org.springframework.util.CompositeIterator;
 
 /**
  * Default {@link SqlPrepareStatementStrategy} that supports named query parameters as well index based.
@@ -44,10 +44,9 @@ import org.springframework.util.CompositeIterator;
 public class DefaultSqlPrepareStatementStrategy implements SqlPrepareStatementStrategy {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultSqlPrepareStatementStrategy.class);
-    private static final Pattern REPLACE_IN_PATTERN = Pattern.compile("\\:\\?in\\:(\\w+|\\$\\{[^\\}]+\\})", Pattern.MULTILINE);
-    private static final Pattern REPLACE_PATTERN = Pattern.compile("\\:\\?\\w+|\\:\\?\\$\\{[^\\}]+\\}", Pattern.MULTILINE);
-    private static final Pattern NAME_IN_PATTERN = Pattern.compile("\\:\\?(in\\:(\\w+|\\$\\{[^\\}]+\\}))", Pattern.MULTILINE);
-    private static final Pattern NAME_PATTERN = Pattern.compile("\\:\\?(\\w+|\\$\\{[^\\}]+\\})", Pattern.MULTILINE);
+    private static final Pattern REPLACE_IN_PATTERN = Pattern.compile(":\\?in:(\\w+|\\$\\{[^\\}]+\\})", Pattern.MULTILINE);
+    private static final Pattern REPLACE_PATTERN = Pattern.compile(":\\?\\w+|:\\?\\$\\{[^\\}]+\\}", Pattern.MULTILINE);
+    private static final Pattern NAME_PATTERN = Pattern.compile(":\\?((?:in:)?(?:\\w+|\\$\\{[^\\}]+\\}))", Pattern.MULTILINE);
     private final char separator;
 
     public DefaultSqlPrepareStatementStrategy() {
@@ -60,34 +59,46 @@ public class DefaultSqlPrepareStatementStrategy implements SqlPrepareStatementSt
 
     @Override
     public String prepareQuery(String query, boolean allowNamedParameters, final Exchange exchange) throws SQLException {
-        String answer;
         if (allowNamedParameters && hasNamedParameters(query)) {
-            if (exchange != null) {
-                // replace all :?in:word with a number of placeholders for how many values are expected in the IN values
-                Matcher matcher = REPLACE_IN_PATTERN.matcher(query);
-                while (matcher.find()) {
-                    String found = matcher.group(1);
-                    Object parameter = lookupParameter(found, exchange, exchange.getIn().getBody());
-                    if (parameter != null) {
-                        Iterator it = createInParameterIterator(parameter);
-                        CollectionStringBuffer csb = new CollectionStringBuffer(",");
-                        while (it.hasNext()) {
-                            it.next();
-                            csb.append("\\?");
-                        }
-                        String replace = csb.toString();
-                        query = matcher.replaceAll(replace);
-                    }
+            // replace all :?in:word with a number of placeholders for how many values are expected in the IN values
+            Matcher matcher = REPLACE_IN_PATTERN.matcher(query);
+            while (matcher.find()) {
+                String found = matcher.group(1);
+
+                if (exchange == null) {
+                    throw new RuntimeExchangeException(String.format(IN_WITHOUT_EXCHANGE_NOT_SUPPORTED_EXCEPTION, query), exchange);
                 }
+                ValueHolder<Object> parameter = lookupParameter(found, exchange, exchange.getIn().getBody());
+
+                if (parameter == null) {
+                    throw new RuntimeExchangeException(String.format(MISSING_PARAMETER_EXCEPTION, found, query), exchange);
+                }
+                Iterator it = createInParameterIterator(parameter.get());
+                String replace;
+
+                // In case of empty list or null value
+                // query will transform to " in (?) "
+                // ? will be bound to null below
+                if (!it.hasNext()) {
+                    replace = "?";
+                } else {
+                    CollectionStringBuffer csb = new CollectionStringBuffer(",");
+                    do {
+                        it.next();
+                        csb.append("?");
+                    } while (it.hasNext());
+                    replace = csb.toString();
+                }
+                query = query.replace(matcher.group(), replace);
+                matcher = REPLACE_IN_PATTERN.matcher(query);
             }
+
             // replace all :?word and :?${foo} with just ?
-            answer = REPLACE_PATTERN.matcher(query).replaceAll("\\?");
-        } else {
-            answer = query;
+            query = REPLACE_PATTERN.matcher(query).replaceAll("\\?");
         }
 
-        LOG.trace("Prepared query: {}", answer);
-        return answer;
+        LOG.trace("Prepared query: {}", query);
+        return query;
     }
 
     @Override
@@ -123,34 +134,20 @@ public class DefaultSqlPrepareStatementStrategy implements SqlPrepareStatementSt
 
         final Object[] args = new Object[expectedParams];
         int i = 0;
-        int argNumber = 1;
 
         while (iterator != null && iterator.hasNext()) {
             Object value = iterator.next();
 
-            // special for SQL IN where we need to set dynamic number of values
-            if (value instanceof CompositeIterator) {
-                Iterator it = (Iterator) value;
-                while (it.hasNext()) {
-                    Object val = it.next();
-                    LOG.trace("Setting parameter #{} with value: {}", argNumber, val);
-                    if (argNumber <= expectedParams) {
-                        args[i] = val;
-                    }
-                    argNumber++;
-                    i++;
-                }
-            } else {
-                LOG.trace("Setting parameter #{} with value: {}", argNumber, value);
-                if (argNumber <= expectedParams) {
-                    args[i] = value;
-                }
-                argNumber++;
-                i++;
+            if (i < expectedParams) {
+                args[i] = value;
             }
+
+            i++;
+            LOG.trace("Setting parameter #{} with value: {}", i, value);
         }
-        if (argNumber - 1 != expectedParams) {
-            throw new SQLException("Number of parameters mismatch. Expected: " + expectedParams + ", was: " + (argNumber - 1));
+
+        if (i != expectedParams) {
+            throw new SQLException("Number of parameters mismatch. Expected: " + expectedParams + ", was: " + i);
         }
 
         // use argument setter as it deals with various JDBC drivers setObject vs setLong/setInteger/setString etc.
@@ -164,47 +161,32 @@ public class DefaultSqlPrepareStatementStrategy implements SqlPrepareStatementSt
     }
 
     private static final class NamedQueryParser {
-
-        private final Matcher inMatcher;
         private final Matcher matcher;
-        // which mode are we in
-        private boolean in;
-        private boolean name;
 
         private NamedQueryParser(String query) {
-            this.inMatcher = NAME_IN_PATTERN.matcher(query);
-            this.matcher = NAME_PATTERN.matcher(query);
+            matcher = NAME_PATTERN.matcher(query);
         }
 
         public String next() {
-            if (!name && inMatcher.find()) {
-                // turn on in mode, so we only match using in matcher next time
-                in = true;
-                return inMatcher.group(1);
-            } else if (!in && matcher.find()) {
-                // turn on name mode, so we only match using name matcher next time
-                name = true;
+            if (matcher.find()) {
                 return matcher.group(1);
             }
-
             return null;
         }
     }
 
-    protected static Object lookupParameter(String nextParam, Exchange exchange, Object body) {
+    protected static ValueHolder<Object> lookupParameter(String nextParam, Exchange exchange, Object body) {
         Map<?, ?> bodyMap = safeMap(exchange.getContext().getTypeConverter().tryConvertTo(Map.class, body));
         Map<?, ?> headersMap = safeMap(exchange.getIn().getHeaders());
 
-        Object answer = null;
         if (nextParam.startsWith("${") && nextParam.endsWith("}")) {
-            answer = SimpleLanguage.expression(nextParam).evaluate(exchange, Object.class);
+            return new ValueHolder<>(SimpleLanguage.expression(nextParam).evaluate(exchange, Object.class));
         } else if (bodyMap.containsKey(nextParam)) {
-            answer = bodyMap.get(nextParam);
+            return new ValueHolder<>(bodyMap.get(nextParam));
         } else if (headersMap.containsKey(nextParam)) {
-            answer = headersMap.get(nextParam);
+            return new ValueHolder<>(headersMap.get(nextParam));
         }
-
-        return answer;
+        return null;
     }
 
     private static Map<?, ?> safeMap(Map<?, ?> map) {
@@ -212,7 +194,7 @@ public class DefaultSqlPrepareStatementStrategy implements SqlPrepareStatementSt
     }
 
     @SuppressWarnings("unchecked")
-    protected static CompositeIterator createInParameterIterator(Object value) {
+    protected static Iterator<Object> createInParameterIterator(Object value) {
         Iterator it;
         // if the body is a String then honor quotes etc.
         if (value instanceof String) {
@@ -222,19 +204,17 @@ public class DefaultSqlPrepareStatementStrategy implements SqlPrepareStatementSt
         } else {
             it = ObjectHelper.createIterator(value, null);
         }
-        CompositeIterator ci = new CompositeIterator();
-        ci.add(it);
-        return ci;
+        return it;
     }
 
+
     private static final class PopulateIterator implements Iterator<Object> {
-        private static final String MISSING_PARAMETER_EXCEPTION =
-                "Cannot find key [%s] in message body or headers to use when setting named parameter in query [%s]";
         private final String query;
         private final NamedQueryParser parser;
         private final Exchange exchange;
         private final Object body;
         private String nextParam;
+        private Iterator<Object> subIterator = null;
 
         private PopulateIterator(String query, Exchange exchange, Object body) {
             this.query = query;
@@ -246,43 +226,68 @@ public class DefaultSqlPrepareStatementStrategy implements SqlPrepareStatementSt
 
         @Override
         public boolean hasNext() {
-            return nextParam != null;
+            return nextParam != null || (subIterator != null && subIterator.hasNext());
         }
 
         @Override
         public Object next() {
+            try {
+                if (subIterator != null) {
+                    if (subIterator.hasNext()) {
+                        return subIterator.next();
+                    } else {
+                        subIterator = null;
+                    }
+                }
+            } catch (Throwable t) {
+                // Abandon subIterator if it's borked to avoid potentially infinite loops.
+                subIterator = null;
+                throw t;
+            }
+
             if (nextParam == null) {
                 throw new NoSuchElementException();
             }
 
             // is it a SQL in parameter
-            boolean in = false;
-            if (nextParam.startsWith("in:")) {
-                in = true;
+            final boolean in = nextParam.startsWith("in:");
+            if (in) {
                 nextParam = nextParam.substring(3);
             }
 
-            Object next = null;
             try {
-                next = lookupParameter(nextParam, exchange, body);
-                if (in && next != null) {
-                    // if SQL IN we need to return an iterator that can iterate the parameter values
-                    next = createInParameterIterator(next);
-                }
-                if (next == null) {
+                ValueHolder<Object> nextValue = lookupParameter(nextParam, exchange, body);
+                if (nextValue == null) {
                     throw new RuntimeExchangeException(String.format(MISSING_PARAMETER_EXCEPTION, nextParam, query), exchange);
                 }
+
+                if (!in) {
+                    return nextValue.get();
+                }
+
+                subIterator = createInParameterIterator(nextValue.get());
+
+                // If subiterator starts empty just yield null to bind
+                // the single placeholder added earlier.
+                if (!subIterator.hasNext()) {
+                    subIterator = null;
+                    return null;
+                }
+                return subIterator.next();
             } finally {
                 nextParam = parser.next();
             }
-
-            return next;
         }
 
         @Override
         public void remove() {
             throw new UnsupportedOperationException();
         }
-
     }
+
+    private static final String MISSING_PARAMETER_EXCEPTION =
+            "Cannot find key [%s] in message body or headers to use when setting named parameter in query [%s]";
+
+    private static final String IN_WITHOUT_EXCHANGE_NOT_SUPPORTED_EXCEPTION =
+            "In expression is not supported when no exchange is provieded in query [%s]";
 }

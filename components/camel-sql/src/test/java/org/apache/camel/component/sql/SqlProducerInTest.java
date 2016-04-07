@@ -104,6 +104,32 @@ public class SqlProducerInTest extends CamelTestSupport {
         assertEquals("AMQ", row.get("PROJECT"));
     }
 
+    @Test
+    public void testQueryInNull() throws InterruptedException {
+        MockEndpoint mock = getMockEndpoint("mock:query");
+        mock.expectedMessageCount(1);
+
+        template.requestBodyAndHeader("direct:query", "Hi there!", "names", null);
+
+        assertMockEndpointsSatisfied();
+
+        List list = mock.getReceivedExchanges().get(0).getIn().getBody(List.class);
+        assertEquals(0, list.size());
+    }
+
+    @Test
+    public void testQueryInEmpty() throws InterruptedException {
+        MockEndpoint mock = getMockEndpoint("mock:query");
+        mock.expectedMessageCount(1);
+
+        template.requestBodyAndHeader("direct:query", "Hi there!", "names", new ArrayList<>());
+
+        assertMockEndpointsSatisfied();
+
+        List list = mock.getReceivedExchanges().get(0).getIn().getBody(List.class);
+        assertEquals(0, list.size());
+    }
+
     @Override
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
