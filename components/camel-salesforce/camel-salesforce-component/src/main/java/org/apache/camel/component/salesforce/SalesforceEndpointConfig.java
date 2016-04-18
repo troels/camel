@@ -37,7 +37,7 @@ import org.eclipse.jetty.client.HttpClient;
 public class SalesforceEndpointConfig implements Cloneable {
 
     // default API version
-    public static final String DEFAULT_VERSION = "33.0";
+    public static final String DEFAULT_VERSION = "36.0";
 
     // general parameter
     public static final String API_VERSION = "apiVersion";
@@ -64,7 +64,7 @@ public class SalesforceEndpointConfig implements Cloneable {
     public static final String JOB_ID = "jobId";
     public static final String BATCH_ID = "batchId";
     public static final String RESULT_ID = "resultId";
-    
+
     // parameters for Analytics API
     public static final String REPORT_ID = "reportId";
     public static final String INCLUDE_DETAILS = "includeDetails";
@@ -128,7 +128,7 @@ public class SalesforceEndpointConfig implements Cloneable {
     private Boolean notifyForOperationDelete;
     @UriParam
     private Boolean notifyForOperationUndelete;
-    
+
     // Analytics API properties
     @UriParam
     private String reportId;
@@ -509,7 +509,7 @@ public class SalesforceEndpointConfig implements Cloneable {
         valueMap.put(JOB_ID, jobId);
         valueMap.put(BATCH_ID, batchId);
         valueMap.put(RESULT_ID, resultId);
-        
+
         // add analytics API properties
         valueMap.put(REPORT_ID, reportId);
         valueMap.put(INCLUDE_DETAILS, includeDetails);

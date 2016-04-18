@@ -42,6 +42,7 @@ import org.apache.camel.component.salesforce.api.dto.Version;
 import org.apache.camel.component.salesforce.api.dto.Versions;
 import org.apache.camel.component.salesforce.dto.generated.Document;
 import org.apache.camel.component.salesforce.dto.generated.Line_Item__c;
+import org.apache.camel.component.salesforce.dto.generated.MerchandiseXmlResponse;
 import org.apache.camel.component.salesforce.dto.generated.Merchandise__c;
 import org.apache.camel.component.salesforce.dto.generated.QueryRecordsLine_Item__c;
 import org.apache.camel.util.jsse.SSLContextParameters;
@@ -404,23 +405,6 @@ public class RestApiIntegrationTest extends AbstractSalesforceTestBase {
         }
     }
 
-    /**
-     * Response DTO for Salesforce APEX REST calls.
-     * See https://www.salesforce.com/us/developer/docs/apexcode/Content/apex_rest_methods.htm.
-     */
-    @XStreamAlias("response")
-    public static class MerchandiseXmlResponse extends Merchandise__c {
-        // XML response contains a type string with the SObject type name
-        private String type;
-
-        public String getType() {
-            return type;
-        }
-
-        public void setType(String type) {
-            this.type = type;
-        }
-    }
 
     @Test
     public void testStatus300() throws Exception {
@@ -503,6 +487,7 @@ public class RestApiIntegrationTest extends AbstractSalesforceTestBase {
         try {
             result = template().requestBody("direct:createSObject" + suffix,
                 merchandise, CreateSObjectResult.class);
+            System.out.println(result);
             fail("Expected SalesforceException with statusCode 400");
         } catch (CamelExecutionException e) {
             assertTrue(e.getCause() instanceof SalesforceException);

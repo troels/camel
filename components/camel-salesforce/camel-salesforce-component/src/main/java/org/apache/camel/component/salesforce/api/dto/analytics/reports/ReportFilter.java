@@ -26,6 +26,7 @@ public class ReportFilter extends AbstractDTOBase {
     private String value;
     private String column;
     private String operator;
+    private Boolean isRunPageEditable;
 
     public String getValue() {
         return value;
@@ -49,5 +50,13 @@ public class ReportFilter extends AbstractDTOBase {
 
     public void setOperator(String operator) {
         this.operator = operator;
+    }
+
+    public Boolean getIsRunPageEditable() {
+        return isRunPageEditable;
+    }
+
+    public void setIsRunPageEditable(Boolean isRunPageEditable) {
+        this.isRunPageEditable = isRunPageEditable;
     }
 }

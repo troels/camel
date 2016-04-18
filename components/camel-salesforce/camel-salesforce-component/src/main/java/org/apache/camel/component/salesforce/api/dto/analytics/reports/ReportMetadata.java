@@ -36,6 +36,150 @@ public class ReportMetadata extends AbstractDTOBase {
     private ReportFilter[] reportFilters;
     private String[] detailColumns;
     private String[] historicalSnapshotDates;
+    private String division;
+    private String folderId;
+    private BucketField buckets;
+    private Chart[] chart;
+    private CrossFilter[] crossFilters;
+    private CustomSummaryFormula customSummaryFormula;
+    private Boolean hasDetailRows;
+    private Boolean hasRecordCount;
+    private String scope;
+    private Boolean showGrandTotal;
+    private Boolean showSubtotals;
+    private SortBy[] sortBy;
+    private DateFilter standardDateFilter;
+    private String[] standardFilters;
+    private TopRows topRows;
+    private String description;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDivision() {
+        return division;
+    }
+
+    public void setDivision(String division) {
+        this.division = division;
+    }
+
+    public String getFolderId() {
+        return folderId;
+    }
+
+    public void setFolderId(String folderId) {
+        this.folderId = folderId;
+    }
+
+    public BucketField getBuckets() {
+        return buckets;
+    }
+
+    public void setBuckets(BucketField buckets) {
+        this.buckets = buckets;
+    }
+
+    public Chart[] getChart() {
+        return chart;
+    }
+
+    public void setChart(Chart[] chart) {
+        this.chart = chart;
+    }
+
+    public CrossFilter[] getCrossFilters() {
+        return crossFilters;
+    }
+
+    public void setCrossFilters(CrossFilter[] crossFilters) {
+        this.crossFilters = crossFilters;
+    }
+
+    public CustomSummaryFormula getCustomSummaryFormula() {
+        return customSummaryFormula;
+    }
+
+    public void setCustomSummaryFormula(CustomSummaryFormula customSummaryFormula) {
+        this.customSummaryFormula = customSummaryFormula;
+    }
+
+    public Boolean getHasDetailRows() {
+        return hasDetailRows;
+    }
+
+    public void setHasDetailRows(Boolean hasDetailRows) {
+        this.hasDetailRows = hasDetailRows;
+    }
+
+    public Boolean getHasRecordCount() {
+        return hasRecordCount;
+    }
+
+    public void setHasRecordCount(Boolean hasRecordCount) {
+        this.hasRecordCount = hasRecordCount;
+    }
+
+    public String getScope() {
+        return scope;
+    }
+
+    public void setScope(String scope) {
+        this.scope = scope;
+    }
+
+    public Boolean getShowGrandTotal() {
+        return showGrandTotal;
+    }
+
+    public void setShowGrandTotal(Boolean showGrandTotal) {
+        this.showGrandTotal = showGrandTotal;
+    }
+
+    public Boolean getShowSubtotals() {
+        return showSubtotals;
+    }
+
+    public void setShowSubtotals(Boolean showSubtotals) {
+        this.showSubtotals = showSubtotals;
+    }
+
+    public SortBy[] getSortBy() {
+        return sortBy;
+    }
+
+    public void setSortBy(SortBy[] sortBy) {
+        this.sortBy = sortBy;
+    }
+
+    public DateFilter getStandardDateFilter() {
+        return standardDateFilter;
+    }
+
+    public void setStandardDateFilter(DateFilter standardDateFilter) {
+        this.standardDateFilter = standardDateFilter;
+    }
+
+    public String[] getStandardFilters() {
+        return standardFilters;
+    }
+
+    public void setStandardFilters(String[] standardFilters) {
+        this.standardFilters = standardFilters;
+    }
+
+    public TopRows getTopRows() {
+        return topRows;
+    }
+
+    public void setTopRows(TopRows topRows) {
+        this.topRows = topRows;
+    }
 
     public String getName() {
         return name;

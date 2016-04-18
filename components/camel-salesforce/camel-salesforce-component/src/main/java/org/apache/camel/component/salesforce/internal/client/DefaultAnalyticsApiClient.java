@@ -32,6 +32,7 @@ import org.apache.camel.component.salesforce.api.dto.analytics.reports.ReportMet
 import org.apache.camel.component.salesforce.api.dto.analytics.reports.SyncReportResults;
 import org.apache.camel.component.salesforce.internal.SalesforceSession;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.type.TypeReference;
 import org.eclipse.jetty.client.ContentExchange;
 import org.eclipse.jetty.client.HttpClient;
@@ -55,6 +56,7 @@ public class DefaultAnalyticsApiClient extends AbstractClientBase implements Ana
         super(version, session, httpClient);
 
         objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, false);
     }
 
     @Override

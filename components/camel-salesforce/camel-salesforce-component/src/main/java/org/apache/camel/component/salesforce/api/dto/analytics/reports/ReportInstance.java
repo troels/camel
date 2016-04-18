@@ -31,6 +31,15 @@ public class ReportInstance extends AbstractDTOBase {
     private Boolean hasDetailRows;
     private DateTime completionDate;
     private DateTime requestDate;
+    private Boolean queryable;
+
+    public Boolean getQueryable() {
+        return queryable;
+    }
+
+    public void setQueryable(Boolean queryable) {
+        this.queryable = queryable;
+    }
 
     public String getId() {
         return id;

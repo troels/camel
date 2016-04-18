@@ -28,6 +28,42 @@ public class ReportTypeMetadata extends AbstractDTOBase {
 
     private ReportTypeColumnCategory[] categories;
     private Map<String, List<FilterOperator>> dataTypeFilterOperatorMap;
+    private DivisionInfo[] divisionInfo;
+    private ScopeInfo scopeInfo;
+    private StandardDateFilterDurationGroups[] standardDateFilterDurationGroups;
+    private String[] standardFilterInfos;
+
+    public DivisionInfo[] getDivisionInfo() {
+        return divisionInfo;
+    }
+
+    public void setDivisionInfo(DivisionInfo[] divisionInfo) {
+        this.divisionInfo = divisionInfo;
+    }
+
+    public ScopeInfo getScopeInfo() {
+        return scopeInfo;
+    }
+
+    public void setScopeInfo(ScopeInfo scopeInfo) {
+        this.scopeInfo = scopeInfo;
+    }
+
+    public StandardDateFilterDurationGroups[] getStandardDateFilterDurationGroups() {
+        return standardDateFilterDurationGroups;
+    }
+
+    public void setStandardDateFilterDurationGroups(StandardDateFilterDurationGroups[] standardDateFilterDurationGroups) {
+        this.standardDateFilterDurationGroups = standardDateFilterDurationGroups;
+    }
+
+    public String[] getStandardFilterInfos() {
+        return standardFilterInfos;
+    }
+
+    public void setStandardFilterInfos(String[] standardFilterInfos) {
+        this.standardFilterInfos = standardFilterInfos;
+    }
 
     public ReportTypeColumnCategory[] getCategories() {
         return categories;

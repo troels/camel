@@ -31,6 +31,15 @@ public class SObjectUrls extends AbstractDTOBase {
     private String compactLayouts;
     private String caseRowArticleSuggestions;
     private String push;
+    private String defaultValues;
+
+    public String getDefaultValues() {
+        return defaultValues;
+    }
+
+    public void setDefaultValues(String defaultValues) {
+        this.defaultValues = defaultValues;
+    }
 
     public String getSobject() {
         return sobject;

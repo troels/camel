@@ -33,6 +33,25 @@ public class SObjectDescription extends SObject {
     private List<RecordTypeInfo> recordTypeInfos;
     @XStreamImplicit
     private List<NamedLayoutInfo> namedLayoutInfos;
+    private String networkScopeFieldName;
+    @XStreamImplicit
+    private List<String> supportedScopes;
+
+    public List<String> getSupportedScopes() {
+        return supportedScopes;
+    }
+
+    public void setSupportedScopes(List<String> supportedScopes) {
+        this.supportedScopes = supportedScopes;
+    }
+
+    public String getNetworkScopeFieldName() {
+        return networkScopeFieldName;
+    }
+
+    public void setNetworkScopeFieldName(String networkScopeFieldName) {
+        this.networkScopeFieldName = networkScopeFieldName;
+    }
 
     public List<ActionOverride> getActionOverrides() {
         return actionOverrides;

@@ -17,6 +17,7 @@
 package org.apache.camel.component.salesforce.api.dto;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * DTO for Salesforce Resources.
@@ -46,6 +47,44 @@ public class RestResources extends AbstractDTOBase {
     private String actions;
     private String tabs;
     private String wave;
+    private String commerce;
+
+    @XStreamAlias("exchange-connect")
+    private String exchangeConnect;
+    private String composite;
+    private String parameterizedSearch;
+    private String nouns;
+    private String event;
+
+    @XStreamAlias("async-queries")
+    private String asyncQueries;
+    private String match;
+    private String emailConnect;
+    private String support;
+
+    public String getEmailConnect() {
+        return emailConnect;
+    }
+
+    public void setEmailConnect(String emailConnect) {
+        this.emailConnect = emailConnect;
+    }
+
+    public String getNouns() {
+        return nouns;
+    }
+
+    public void setNouns(String nouns) {
+        this.nouns = nouns;
+    }
+
+    public String getCommerce() {
+        return commerce;
+    }
+
+    public void setCommerce(String commerce) {
+        this.commerce = commerce;
+    }
 
     public String getSobjects() {
         return sobjects;
@@ -221,5 +260,65 @@ public class RestResources extends AbstractDTOBase {
 
     public void setWave(String wave) {
         this.wave = wave;
+    }
+
+    @JsonProperty("exchange-connect")
+    public String getExchangeConnect() {
+        return exchangeConnect;
+    }
+
+    @JsonProperty("exchange-connect")
+    public void setExchangeConnect(String exchangeConnect) {
+        this.exchangeConnect = exchangeConnect;
+    }
+
+    public String getComposite() {
+        return composite;
+    }
+
+    public void setComposite(String composite) {
+        this.composite = composite;
+    }
+
+    public String getParameterizedSearch() {
+        return parameterizedSearch;
+    }
+
+    public void setParameterizedSearch(String parameterizedSearch) {
+        this.parameterizedSearch = parameterizedSearch;
+    }
+
+    public String getEvent() {
+        return event;
+    }
+
+    public void setEvent(String event) {
+        this.event = event;
+    }
+
+    @JsonProperty("async-queries")
+    public String getAsyncQueries() {
+        return asyncQueries;
+    }
+
+    @JsonProperty("async-queries")
+    public void setAsyncQueries(String asyncQueries) {
+        this.asyncQueries = asyncQueries;
+    }
+
+    public String getMatch() {
+        return match;
+    }
+
+    public void setMatch(String match) {
+        this.match = match;
+    }
+
+    public String getSupport() {
+        return support;
+    }
+
+    public void setSupport(String support) {
+        this.support = support;
     }
 }

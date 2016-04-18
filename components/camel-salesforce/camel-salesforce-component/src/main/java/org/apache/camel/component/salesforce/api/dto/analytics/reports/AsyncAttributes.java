@@ -28,6 +28,33 @@ public class AsyncAttributes extends AbstractAttributesBase {
     private String ownerId;
     private DateTime completionDate;
     private DateTime requestDate;
+    private String errorMessage;
+    private Boolean queryable;
+    private Boolean showDetailedErrorToUser;
+
+    public Boolean getShowDetailedErrorToUser() {
+        return showDetailedErrorToUser;
+    }
+
+    public void setShowDetailedErrodToUser(Boolean showDetailedErrorToUser) {
+        this.showDetailedErrorToUser = showDetailedErrorToUser;
+    }
+
+    public Boolean getQueryable() {
+        return queryable;
+    }
+
+    public void setQueryable(Boolean queryable) {
+        this.queryable = queryable;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
 
     public String getId() {
         return id;

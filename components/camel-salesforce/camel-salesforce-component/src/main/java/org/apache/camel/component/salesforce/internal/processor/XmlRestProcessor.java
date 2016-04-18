@@ -204,6 +204,7 @@ public class XmlRestProcessor extends AbstractRestProcessor {
                     // its ok to call this multiple times, as xstream ignores duplicate calls
                     localXStream.processAnnotations(responseClass);
                     final String responseAlias = exchange.getProperty(RESPONSE_ALIAS, String.class);
+
                     if (responseAlias != null) {
                         // extremely dirty, need to flush entire cache if its holding on to an old alias!!!
                         final CachingMapper mapper = (CachingMapper) localXStream.getMapper();

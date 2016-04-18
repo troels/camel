@@ -20,8 +20,10 @@ package org.apache.camel.component.salesforce.internal.client;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.security.AnyTypePermission;
 import com.thoughtworks.xstream.security.ExplicitTypePermission;
+import com.thoughtworks.xstream.security.RegExpTypePermission;
 import com.thoughtworks.xstream.security.TypePermission;
 import com.thoughtworks.xstream.security.WildcardTypePermission;
+import java.util.regex.Pattern;
 
 /**
  * REVISIT this code is duplicated from camel-xstream and we should
@@ -29,7 +31,8 @@ import com.thoughtworks.xstream.security.WildcardTypePermission;
  */
 public final class XStreamUtils {
     private static final String PERMISSIONS_PROPERTY_KEY = "org.apache.camel.xstream.permissions";
-    private static final String PERMISSIONS_PROPERTY_DEFAULT = "-*,java.lang.*,java.util.*";
+    private static final String PERMISSIONS_PROPERTY_DEFAULT = "-*,java.lang.*,java.util.*," +
+            "~^org\\.apache\\.camel\\.component\\.salesforce\\..*(?<=\\.)dto\\..*$";
 
     private XStreamUtils() {
     }
@@ -48,7 +51,10 @@ public final class XStreamUtils {
                 }
             }
             TypePermission typePermission = null;
-            if ("*".equals(pterm)) {
+            if (pterm.startsWith("~")) {
+                final Pattern pattern = Pattern.compile(pterm.substring(1));
+                typePermission = new RegExpTypePermission(new Pattern[] { pattern });
+            } else if ("*".equals(pterm)) {
                 // accept or deny any
                 typePermission = AnyTypePermission.ANY;
             } else if (pterm.indexOf('*') < 0) {

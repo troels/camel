@@ -149,6 +149,7 @@ public class JsonRestProcessor extends AbstractRestProcessor {
             if (responseEntity != null) {
                 Object response = null;
                 Class<?> responseClass = exchange.getProperty(RESPONSE_CLASS, Class.class);
+
                 if (responseClass != null) {
                     response = objectMapper.readValue(responseEntity, responseClass);
                 } else {

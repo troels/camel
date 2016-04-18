@@ -75,6 +75,15 @@ public class SObjectField extends AbstractDTOBase {
     private Boolean queryByDistance;
     private String referenceTargetField;
     private Boolean encrypted;
+    private Boolean aggregatable;
+
+    public Boolean getAggregatable() {
+        return aggregatable;
+    }
+
+    public void setAggregatable(Boolean aggregatable) {
+        this.aggregatable = aggregatable;
+    }
 
     public Integer getLength() {
         return length;

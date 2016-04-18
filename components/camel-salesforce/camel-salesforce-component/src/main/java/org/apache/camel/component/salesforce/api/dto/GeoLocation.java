@@ -25,6 +25,8 @@ public class GeoLocation extends AbstractDTOBase {
 
     private Double longitude;
 
+    private String geocodeAccuracy;
+
     public Double getLatitude() {
         return latitude;
     }
@@ -39,5 +41,13 @@ public class GeoLocation extends AbstractDTOBase {
 
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
+    }
+
+    public String getGeocodeAccuracy() {
+        return geocodeAccuracy;
+    }
+
+    public void setGeocodeAccuracy(String geocodeAccuracy) {
+        this.geocodeAccuracy = geocodeAccuracy;
     }
 }

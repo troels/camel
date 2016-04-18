@@ -23,7 +23,8 @@ public class RecordTypeInfo extends AbstractDTOBase {
     private String recordTypeId;
     private Boolean defaultRecordTypeMapping;
     private InfoUrls urls;
-
+    private Boolean master;
+    
     public String getName() {
         return name;
     }
@@ -62,5 +63,13 @@ public class RecordTypeInfo extends AbstractDTOBase {
 
     public void setUrls(InfoUrls urls) {
         this.urls = urls;
+    }
+
+    public Boolean getMaster() {
+        return master;
+    }
+
+    public void setMaster(Boolean master) {
+        this.master = master;
     }
 }
